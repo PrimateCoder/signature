@@ -28,7 +28,7 @@ export default function extendCommentPost() {
   extend(CommentPost.prototype, 'content', function (content) {
     const user = this.attrs.post.user?.();
 
-    if (user && user.signature()) {
+    if (user && user.signature() && !(this.attrs.post.isHidden() && !this.revealContent)) {
       const allowInlineEditing = app.forum.attribute<boolean>('allowInlineEditing') || false;
 
       content.push(
