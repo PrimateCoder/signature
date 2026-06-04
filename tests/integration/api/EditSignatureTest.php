@@ -7,7 +7,7 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
-
+ */
 
 namespace FoF\Signature\Tests\integration\api;
 
@@ -30,9 +30,9 @@ class EditSignatureTest extends TestCase
             'users' => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'normal2', 'email' => 'normal2@machine.local', 'is_email_confirmed' => true, 'signature' => 'too-obscure'],
-                ['id' => 4, 'username' => 'moderator', 'email' => 'moderator@machine.local', 'is_email_confirmed' => true, 'signature' => 'too-obscure2'],
+                ['id' => 4, 'username' => 'moderator', 'email' => 'moderator@machine.local', 'is_email_confirmed' => true, 'signature' => 'mod-sig'],
                 ['id' => 5, 'username' => 'normal3', 'email' => 'normal3@machine.local', 'is_email_confirmed' => true, 'signature' => 'too-obscure3'],
-                ['id' => 6, 'username' => 'admin2', 'email' => 'admin2@machine.local', 'is_email_confirmed' => true, 'signature' => 'too-obscure4'],
+                ['id' => 6, 'username' => 'admin2', 'email' => 'admin2@machine.local', 'is_email_confirmed' => true, 'signature' => 'admin-sig'],
             ],
             'group_permission' => [
                 ['permission' => 'haveSignature', 'group_id' => 5],
@@ -43,7 +43,9 @@ class EditSignatureTest extends TestCase
                 ['id' => 5, 'name_singular' => 'TestSig', 'name_plural' => 'TestSigs', 'color' => '#FF0000', 'icon' => 'fas fa-user'],
             ],
             'group_user' => [
+                ['user_id' => 4, 'group_id' => 4],
                 ['user_id' => 5, 'group_id' => 5],
+                ['user_id' => 6, 'group_id' => 1],
             ],
         ]);
     }
@@ -80,18 +82,18 @@ class EditSignatureTest extends TestCase
     }
 
     #[Test]
-    public function user_with_edit_permission_cannot_edit_admin_signature()
+    public function moderator_cannot_edit_admin_signature()
     {
         $response = $this->send(
             $this->request(
                 'PATCH',
                 '/api/users/6',
                 [
-                    'authenticatedAs' => 5,
+                    'authenticatedAs' => 4,
                     'json'            => [
                         'data' => [
                             'attributes' => [
-                                'signature' => 'This is my new signature',
+                                'signature' => 'Tampered admin signature',
                             ],
                         ],
                     ],
@@ -99,10 +101,37 @@ class EditSignatureTest extends TestCase
             )
         );
 
-        $this->assertEquals(403, $response->getStatusCode(), 'User with edit permission can edit admin signature');
+        $this->assertEquals(403, $response->getStatusCode(), 'Moderator should not be able to edit admin signature');
 
         $user = User::find(6);
 
-        $this->assertEquals('too-obscure4', $user->signature);
+        $this->assertEquals('admin-sig', $user->signature);
+    }
+
+    #[Test]
+    public function moderator_can_edit_regular_user_signature()
+    {
+        $response = $this->send(
+            $this->request(
+                'PATCH',
+                '/api/users/5',
+                [
+                    'authenticatedAs' => 4,
+                    'json'            => [
+                        'data' => [
+                            'attributes' => [
+                                'signature' => 'Moderator set this',
+                            ],
+                        ],
+                    ],
+                ]
+            )
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Moderator should be able to edit regular user signature');
+
+        $user = User::find(5);
+
+        $this->assertEquals('<t>Moderator set this</t>', $user->signature);
     }
 }

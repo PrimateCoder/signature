@@ -68,10 +68,6 @@ class SaveSignatureToDatabase
 
     protected function checkPermissions(User $actor, User $user): void
     {
-        $user->assertCan('haveSignature');
-
-        if ($actor->id !== $user->id) {
-            $actor->assertCan('moderateSignature');
-        }
+        $actor->assertCan('editSignature', $user);
     }
 }

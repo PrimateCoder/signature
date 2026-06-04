@@ -22,7 +22,11 @@ class UserPolicy extends AbstractPolicy
             return $this->deny();
         }
 
-        if (($actor->id === $user->id && $user->hasPermission('haveSignature')) || $actor->hasPermission('moderateSignature')) {
+        if (!$user->hasPermission('haveSignature')) {
+            return $this->deny();
+        }
+
+        if ($actor->id === $user->id || $actor->hasPermission('moderateSignature')) {
             return $this->allow();
         }
 
