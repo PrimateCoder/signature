@@ -1,0 +1,11 @@
+{
+  "name": "@pianotell/flarum-ux-harness",
+  "private": true,
+  "type": "module",
+  "description": "Shared Playwright + Flarum-bootstrap UX-test harness for PianoTell Flarum extensions.",
+  "devDependencies": {
+    "pixelmatch": "^7.1.0",
+    "playwright": "^1.47.0",
+    "pngjs": "^7.0.0"
+  }
+}
