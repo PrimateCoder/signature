@@ -7,13 +7,14 @@
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
- */
+
 
 namespace FoF\Signature\Tests\integration\api;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class EditSignatureTest extends TestCase
 {
@@ -47,9 +48,7 @@ class EditSignatureTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_edit_own_signature_when_allowed_to_have_one()
     {
         $response = $this->send(
@@ -80,9 +79,7 @@ class EditSignatureTest extends TestCase
         $this->assertEquals('<t>This is my new signature</t>', $user->signature);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_edit_permission_cannot_edit_admin_signature()
     {
         $response = $this->send(

@@ -15,7 +15,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
 use FoF\Signature\Formatter\SignatureFormatter;
-use Illuminate\Cache\Repository;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Container\Container;
 
 class SignatureFormatterProvider extends AbstractServiceProvider
@@ -23,13 +23,18 @@ class SignatureFormatterProvider extends AbstractServiceProvider
     public function register(): void
     {
         $this->container->singleton('fof-signature.formatter', function (Container $container) {
-            return new SignatureFormatter(
-                new Repository($container->make('cache.filestore')),
-                $container->make(Paths::class)->storage.'/formatter',
-                $container->make(ExtensionManager::class)
-            );
+            return self::createFormatterInstance($container);
         });
 
         $this->container->alias('fof-signature.formatter', SignatureFormatter::class);
+    }
+
+    public static function createFormatterInstance(Container $container): SignatureFormatter
+    {
+        return new SignatureFormatter(
+            $container->make(Repository::class),
+            $container[Paths::class]->storage.'/formatter',
+            $container->make(ExtensionManager::class)
+        );
     }
 }
