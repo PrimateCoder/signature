@@ -14,6 +14,7 @@ namespace FoF\Signature\Tests\integration\api;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateSignatureTest extends TestCase
 {
@@ -47,18 +48,14 @@ class CreateSignatureTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_create_signature_without_permission()
     {
         $response = $this->send(
-            $this->request(
-                'PATCH',
-                '/api/users/2',
+            $this->request('PATCH', '/api/users/2',
                 [
                     'authenticatedAs' => 2,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'signature' => 'This is my signature',
@@ -76,18 +73,14 @@ class CreateSignatureTest extends TestCase
         $this->assertNull($user->signature);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_signature_with_permission()
     {
         $response = $this->send(
-            $this->request(
-                'PATCH',
-                '/api/users/5',
+            $this->request('PATCH', '/api/users/5',
                 [
                     'authenticatedAs' => 5,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'signature' => 'This is my signature',
@@ -111,18 +104,14 @@ class CreateSignatureTest extends TestCase
         $this->assertEquals('<t>This is my signature</t>', $user->signature);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_create_signature_for_other_user()
     {
         $response = $this->send(
-            $this->request(
-                'PATCH',
-                '/api/users/2',
+            $this->request('PATCH', '/api/users/2',
                 [
                     'authenticatedAs' => 5,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'signature' => 'This is my signature',
@@ -140,18 +129,14 @@ class CreateSignatureTest extends TestCase
         $this->assertNull($user->signature);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_permission_can_create_signature_for_other_user_who_can_have_signature()
     {
         $response = $this->send(
-            $this->request(
-                'PATCH',
-                '/api/users/5',
+            $this->request('PATCH', '/api/users/5',
                 [
                     'authenticatedAs' => 4,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'signature' => 'This is my signature',
@@ -176,18 +161,14 @@ class CreateSignatureTest extends TestCase
         $this->assertEquals('<t>This is my signature</t>', $user->signature);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_permission_cannot_create_signature_for_other_user_who_cannot_have_signature()
     {
         $response = $this->send(
-            $this->request(
-                'PATCH',
-                '/api/users/2',
+            $this->request('PATCH', '/api/users/2',
                 [
                     'authenticatedAs' => 4,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'signature' => 'This is my signature',

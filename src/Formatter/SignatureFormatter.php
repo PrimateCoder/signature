@@ -13,23 +13,18 @@ namespace FoF\Signature\Formatter;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\Formatter\Formatter;
-use Illuminate\Cache\Repository;
+use Illuminate\Contracts\Cache\Repository;
+use s9e\TextFormatter\Configurator;
+use s9e\TextFormatter\Parser;
 
 class SignatureFormatter extends Formatter
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    public function __construct(Repository $repository, string $cacheDir, ExtensionManager $extensions)
+    public function __construct(Repository $cache, string $cacheDir, protected ExtensionManager $extensions)
     {
-        parent::__construct($repository, $cacheDir);
-
-        $this->extensions = $extensions;
+        parent::__construct($cache, $cacheDir);
     }
 
-    protected function getComponent($name)
+    protected function getComponent(string $name): mixed
     {
         $formatter = $this->cache->rememberForever('fof-signature.formatter', function () {
             return $this->getConfigurator()->finalize();
@@ -38,7 +33,7 @@ class SignatureFormatter extends Formatter
         return $formatter[$name];
     }
 
-    protected function getParser($context = null)
+    protected function getParser(mixed $context = null): Parser
     {
         $parser = parent::getParser($context);
 
@@ -48,7 +43,7 @@ class SignatureFormatter extends Formatter
         return $parser;
     }
 
-    protected function getConfigurator()
+    protected function getConfigurator(): Configurator
     {
         $configurator = parent::getConfigurator();
 

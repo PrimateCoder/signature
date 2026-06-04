@@ -11,24 +11,23 @@
 
 namespace FoF\Signature;
 
-use Flarum\Api\Serializer\UserSerializer;
+use Flarum\Api\Resource;
 use Flarum\Extend;
-use Flarum\User\Event\Saving as UserSaving;
 use Flarum\User\User;
+use Flarum\User\Event\Saving as UserSaving;
 
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/less/forum.less')
-        ->route('/u:username/signature', 'user.signature'),
+        ->css(__DIR__.'/less/forum.less'),
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
     new Extend\Locales(__DIR__.'/locale'),
 
-    (new Extend\ApiSerializer(UserSerializer::class))
-        ->attributes(Api\AddUserAttributes::class),
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->fields(Api\UserResourceFields::class),
 
     (new Extend\Event())
         ->listen(UserSaving::class, Listener\SaveSignatureToDatabase::class),

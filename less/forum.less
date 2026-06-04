@@ -4,50 +4,8 @@
   padding-top: inherit;
 }
 
-// Signature shown beneath a post. Visually subordinate to the post body:
-// a left accent bar, smaller muted text, and constrained images so it
-// reads as a signature rather than a continuation of the post.
-.Post-signature {
-  clear: both;
-  margin-top: 15px;
-  padding-left: 12px;
-  border-left: 3px solid @primary-color;
-  font-size: 12px;
-  line-height: 1.4;
-  color: @muted-color;
-
-  .Signature-content {
-    p:last-child {
-      margin-bottom: 0;
-    }
-
-    a {
-      color: @link-color;
-    }
-
-    img {
-      max-height: 80px;
-      width: auto;
-    }
-  }
+.SignatureWrapper {
+  clear:both;
+  border-top:1px dashed var(--control-bg);
+  padding-top:20px;
 }
-
-.Settings-signature {
-  &-controls {
-    margin-bottom: 10px;
-  }
-
-  .Signature-content {
-    padding: 10px;
-    border: 1px solid @control-bg;
-    border-radius: @border-radius;
-    background: @control-bg;
-    cursor: pointer;
-
-    p {
-      margin: 0;
-      color: @muted-color;
-    }
-  }
-}
-

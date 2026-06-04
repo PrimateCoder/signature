@@ -14,6 +14,7 @@ namespace FoF\Signature\Tests\integration\api;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class EditSignatureTest extends TestCase
 {
@@ -42,23 +43,21 @@ class EditSignatureTest extends TestCase
                 ['id' => 5, 'name_singular' => 'TestSig', 'name_plural' => 'TestSigs', 'color' => '#FF0000', 'icon' => 'fas fa-user'],
             ],
             'group_user' => [
+                ['user_id' => 4, 'group_id' => 4],
                 ['user_id' => 5, 'group_id' => 5],
+                ['user_id' => 6, 'group_id' => 1],
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_edit_own_signature_when_allowed_to_have_one()
     {
         $response = $this->send(
-            $this->request(
-                'PATCH',
-                '/api/users/5',
+            $this->request('PATCH', '/api/users/5',
                 [
                     'authenticatedAs' => 5,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'signature' => 'This is my new signature',
@@ -80,18 +79,14 @@ class EditSignatureTest extends TestCase
         $this->assertEquals('<t>This is my new signature</t>', $user->signature);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_edit_permission_cannot_edit_admin_signature()
     {
         $response = $this->send(
-            $this->request(
-                'PATCH',
-                '/api/users/6',
+            $this->request('PATCH', '/api/users/6',
                 [
                     'authenticatedAs' => 5,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'signature' => 'This is my new signature',
@@ -108,4 +103,5 @@ class EditSignatureTest extends TestCase
 
         $this->assertEquals('too-obscure4', $user->signature);
     }
+
 }

@@ -11,31 +11,29 @@
 
 namespace FoF\Signature\Validator;
 
-use DOMDocument;
 use Flarum\Foundation\AbstractValidator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\Signature\Formatter\SignatureFormatter;
-use Illuminate\Contracts\Validation\Factory;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Illuminate\Validation\Factory;
+use Symfony\Component\DomCrawler\Crawler;
 
 class SignatureValidator extends AbstractValidator
 {
-    protected SettingsRepositoryInterface $settings;
-    protected SignatureFormatter $formatter;
-
-    public function __construct(Factory $validator, TranslatorInterface $translator, SettingsRepositoryInterface $settings, SignatureFormatter $formatter)
-    {
+    public function __construct(
+        Factory $validator,
+        TranslatorInterface $translator,
+        protected SettingsRepositoryInterface $settings,
+        protected SignatureFormatter $formatter
+    ) {
         parent::__construct($validator, $translator);
-
-        $this->settings = $settings;
-        $this->formatter = $formatter;
 
         $this->validator->extend('signature_images', function ($attribute, $value, $parameters, $validator) {
             return $this->validateSignatureImages($value);
         });
     }
 
-    protected function getRules()
+    protected function getRules(): array
     {
         return [
             'signature' => [
@@ -46,25 +44,17 @@ class SignatureValidator extends AbstractValidator
         ];
     }
 
-    private function validateSignatureImages(string $value): bool
+    private function validateSignatureImages($value): bool
     {
         $parsedContent = $this->formatter->parse($value);
 
-        if ($parsedContent === '') {
-            return true;
+        $crawler = new Crawler($parsedContent);
+        $images = $crawler->filter('img');
+
+        if ($images->count() > (int) $this->settings->get('signature.maximum_image_count')) {
+            return false;
         }
 
-        $document = new DOMDocument();
-
-        // The parsed content is TextFormatter's XML representation, which may not
-        // be a fully valid HTML document. Suppress libxml warnings while loading.
-        $previous = libxml_use_internal_errors(true);
-        $document->loadHTML($parsedContent, LIBXML_NOERROR | LIBXML_NOWARNING);
-        libxml_clear_errors();
-        libxml_use_internal_errors($previous);
-
-        $imageCount = $document->getElementsByTagName('img')->length;
-
-        return $imageCount <= (int) $this->settings->get('signature.maximum_image_count');
+        return true;
     }
 }

@@ -39,7 +39,7 @@ export default class Signature extends Component<SignatureAttrs> {
           <TextEditor
             value={this.signatureState.content()}
             onchange={this.signatureState.content}
-            placeholder={app.translator.trans('fof-signature.forum.editor.placeholder')}
+            placeholder={app.translator.trans('fof-signature.forum.profile.placeholder')}
             composer={this.signatureState}
             submitLabel={app.translator.trans('fof-signature.forum.buttons.save')}
             onsubmit={this.onEditorSubmit.bind(this)}
@@ -82,9 +82,12 @@ export default class Signature extends Component<SignatureAttrs> {
         this.signatureState.toggleEditing();
         m.redraw();
       })
-      .catch(() => {
+      .catch((error) => {
         this.loading = false;
-        app.alerts.show({ type: 'error' }, app.translator.trans('fof-signature.forum.errors.save_failed'));
+        app.alerts.show(
+          { type: 'error' },
+          error?.alert?.content || app.translator.trans('fof-signature.forum.errors.save_failed')
+        );
         m.redraw();
       });
   }
