@@ -104,4 +104,55 @@ class EditSignatureTest extends TestCase
         $this->assertEquals('too-obscure4', $user->signature);
     }
 
+    #[Test]
+    public function moderator_can_edit_member_signature()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/5',
+                [
+                    'authenticatedAs' => 4,
+                    'json' => [
+                        'data' => [
+                            'attributes' => [
+                                'signature' => 'Moderator edited this',
+                            ],
+                        ],
+                    ],
+                ]
+            )
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), 'Moderator should be able to edit member signature');
+
+        $json = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals('Moderator edited this', $json['data']['attributes']['signature']);
+
+        $user = User::find(5);
+
+        $this->assertEquals('<t>Moderator edited this</t>', $user->signature);
+    }
+
+    #[Test]
+    public function moderator_cannot_edit_admin_signature()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/6',
+                [
+                    'authenticatedAs' => 4,
+                    'json' => [
+                        'data' => [
+                            'attributes' => [
+                                'signature' => 'Moderator should not edit this',
+                            ],
+                        ],
+                    ],
+                ]
+            )
+        );
+
+        $statusCode = $response->getStatusCode();
+
+        $this->assertEquals(403, $statusCode, "Moderator should not be able to edit admin signature (got $statusCode)");
+    }
 }
