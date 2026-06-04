@@ -5,6 +5,7 @@ import Signature from './components/Signature';
 
 export default function extendCommentPost() {
   extend(CommentPost.prototype, 'content', function (content) {
+    if (this.attrs.post.isHidden() && !this.revealContent) return;
     if (this.attrs.post.user?.()) {
       if (this.attrs.post.user().signature()) {
         const allowInlineEditing = app.forum.attribute('allowInlineEditing') || false;
